@@ -1,0 +1,170 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --cgu-red: #8B1538;
+  --cgu-maroon: #5C1128;
+  --cgu-green: #8FA643;
+  --cgu-olive: #6B8E3D;
+  --cgu-dark: #1a1a1a;
+  --cgu-light: #f5f5f0;
+  --bauhaus-yellow: #F5C516;
+  --bauhaus-blue: #0E4D92;
+  --traffic-green: #22C55E;
+  --traffic-yellow: #EAB308;
+  --traffic-red: #EF4444;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  background-color: var(--cgu-light);
+  color: var(--cgu-dark);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+.bauhaus-card {
+  background: white;
+  border: 2px solid var(--cgu-dark);
+  box-shadow: 4px 4px 0 var(--cgu-dark);
+  transition: all 0.2s ease;
+}
+
+.bauhaus-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--cgu-dark);
+}
+
+.bauhaus-btn {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 2px solid var(--cgu-dark);
+  transition: all 0.2s ease;
+}
+
+.bauhaus-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--cgu-dark);
+}
+
+.bauhaus-btn:active {
+  transform: translate(0, 0);
+  box-shadow: none;
+}
+
+.bauhaus-input {
+  border: 2px solid var(--cgu-dark);
+  background: white;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s ease;
+}
+
+.bauhaus-input:focus {
+  outline: none;
+  box-shadow: 3px 3px 0 var(--cgu-red);
+}
+
+.traffic-indicator {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--cgu-dark);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.traffic-green {
+  background-color: var(--traffic-green);
+}
+
+.traffic-yellow {
+  background-color: var(--traffic-yellow);
+}
+
+.traffic-red {
+  background-color: var(--traffic-red);
+}
+
+.traffic-pending {
+  background-color: #d1d5db;
+}
+
+.tab-active {
+  background-color: var(--cgu-red);
+  color: white;
+}
+
+.bauhaus-geometric {
+  position: relative;
+  overflow: hidden;
+}
+
+.bauhaus-geometric::before {
+  content: '';
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  background: var(--cgu-green);
+  border-radius: 50%;
+  opacity: 0.1;
+  top: -100px;
+  right: -100px;
+}
+
+.bauhaus-geometric::after {
+  content: '';
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  background: var(--bauhaus-yellow);
+  opacity: 0.1;
+  bottom: -75px;
+  left: -75px;
+  transform: rotate(45deg);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.compass-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.compass-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  border: 2px solid var(--cgu-dark);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.compass-cell:hover {
+  transform: scale(1.05);
+}
+
+.compass-center {
+  background: var(--cgu-red);
+  color: white;
+}
