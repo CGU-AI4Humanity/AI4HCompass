@@ -270,7 +270,7 @@ export default function ProjectView({ id }: { id: number }) {
             activeTab === 'summary' ? 'tab-active' : 'bg-white text-cgu-dark'
           }`}
         >
-          Summary
+          Compass
         </button>
         {project.attributes.map((attr) => (
           <button
@@ -350,31 +350,38 @@ function SummaryTab({
       </div>
 
       <div className="bauhaus-card p-6">
-        <h3 className="font-bold text-cgu-dark mb-4">Compass Overview</h3>
-        <div className="compass-container">
-          {['NW', 'N', 'NE', 'W', '', 'E', 'SW', 'S', 'SE'].map((code, i) => {
-            if (code === '') {
-              return (
-                <div key={i} className="compass-cell compass-center">
-                  AI
-                </div>
-              );
-            }
+        <h3 className="font-bold text-cgu-dark mb-4 text-center text-xl">Compass</h3>
+        <div className="compass-visual">
+          <div className="compass-center-hub">AI</div>
+          
+          {[
+            { code: 'N', angle: 0, name: 'Purpose' },
+            { code: 'NE', angle: 45, name: 'People' },
+            { code: 'E', angle: 90, name: 'Values' },
+            { code: 'SE', angle: 135, name: 'Risks' },
+            { code: 'S', angle: 180, name: 'Human-in-Loop' },
+            { code: 'SW', angle: 225, name: 'Data & Privacy' },
+            { code: 'W', angle: 270, name: 'Outcomes' },
+            { code: 'NW', angle: 315, name: 'Metrics' }
+          ].map(({ code, angle, name }) => {
             const attr = project.attributes.find(a => a.code === code);
             const statusColors: Record<string, string> = {
-              green: 'bg-traffic-green/20 border-traffic-green',
-              yellow: 'bg-traffic-yellow/20 border-traffic-yellow',
-              red: 'bg-traffic-red/20 border-traffic-red',
-              pending: 'bg-gray-100 border-gray-300'
+              green: 'bg-traffic-green border-traffic-green text-white',
+              yellow: 'bg-traffic-yellow border-traffic-yellow text-cgu-dark',
+              red: 'bg-traffic-red border-traffic-red text-white',
+              pending: 'bg-gray-200 border-gray-400 text-gray-600'
             };
             return (
-              <div
-                key={code}
-                onClick={() => onNavigate(code)}
-                className={`compass-cell ${statusColors[attr?.status || 'pending']}`}
-                title={attr?.name}
-              >
-                {code}
+              <div key={code} className="compass-arm" style={{ '--angle': `${angle}deg` } as React.CSSProperties}>
+                <div className="compass-arrow"></div>
+                <div
+                  onClick={() => onNavigate(code)}
+                  className={`compass-box ${statusColors[attr?.status || 'pending']}`}
+                  title={`${code}: ${attr?.name}`}
+                >
+                  <span className="font-bold text-sm">{code}</span>
+                  <span className="text-xs hidden sm:block">{name}</span>
+                </div>
               </div>
             );
           })}

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Compass, Mail, Key, ArrowRight, CheckCircle } from 'lucide-react';
+import { Mail, Key, ArrowRight, CheckCircle } from 'lucide-react';
 import { startAuthentication } from '@simplewebauthn/browser';
 
 interface LoginProps {
@@ -109,15 +109,15 @@ export default function Login({ onLogin }: LoginProps) {
   }
 
   return (
-    <div className="min-h-screen bg-cgu-light flex items-center justify-center p-4 bauhaus-geometric">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-cgu-light flex flex-col items-center justify-center p-4 bauhaus-geometric">
+      <div className="w-full max-w-md flex-1 flex flex-col justify-center">
         <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-cgu-red rounded-full mx-auto flex items-center justify-center mb-4 border-4 border-cgu-dark">
-            <Compass className="w-10 h-10 text-white" />
-          </div>
+          <img 
+            src="/cgu-logo.png" 
+            alt="Claremont Graduate University" 
+            className="h-24 mx-auto mb-4 object-contain"
+          />
           <h1 className="text-3xl font-bold text-cgu-dark mb-2">AI for Humanity Compass</h1>
-          <p className="text-cgu-dark/70">Claremont Graduate University</p>
-          <p className="text-sm text-cgu-dark/50 mt-1">Center for Information Systems & Technology</p>
         </div>
 
         <div className="bauhaus-card p-8 animate-fade-in">
@@ -230,10 +230,17 @@ export default function Login({ onLogin }: LoginProps) {
           )}
         </div>
 
-        <div className="mt-6 text-center">
-          <p className="text-xs text-cgu-dark/50">
-            AI for Humanity Lab • Dr. Itamar Shabtai
-          </p>
+        <div className="mt-8 flex items-center justify-center gap-6">
+          <img 
+            src="/ai-humanity-lab-logo.png" 
+            alt="AI for Humanity Lab" 
+            className="h-16 object-contain"
+          />
+          <img 
+            src="/cisat-logo.png" 
+            alt="CGU CISAT" 
+            className="h-16 object-contain"
+          />
         </div>
       </div>
     </div>

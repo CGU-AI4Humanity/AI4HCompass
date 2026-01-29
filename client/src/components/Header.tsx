@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
-import { Compass, LogOut, Key, User as UserIcon } from 'lucide-react';
+import { LogOut, Key, User as UserIcon } from 'lucide-react';
 import { startRegistration } from '@simplewebauthn/browser';
 
 interface HeaderProps {
@@ -54,9 +54,11 @@ export default function Header({ user, hasPasskey, onLogout, onPasskeyRegistered
             className="flex items-center gap-3 cursor-pointer" 
             onClick={() => setLocation('/')}
           >
-            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-              <Compass className="w-6 h-6 text-cgu-red" />
-            </div>
+            <img 
+              src="/cgu-logo.png" 
+              alt="CGU" 
+              className="h-12 object-contain bg-white rounded p-1"
+            />
             <div>
               <h1 className="text-lg sm:text-xl font-bold tracking-tight">AI for Humanity Compass</h1>
               <p className="text-xs text-white/80">Claremont Graduate University</p>

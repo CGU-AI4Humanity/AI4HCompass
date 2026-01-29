@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import ProjectView from './pages/ProjectView';
 import Header from './components/Header';
+import Footer from './components/Footer';
 
 interface User {
   id: number;
@@ -64,9 +65,9 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-cgu-light">
+    <div className="min-h-screen bg-cgu-light flex flex-col">
       <Header user={user} hasPasskey={hasPasskey} onLogout={handleLogout} onPasskeyRegistered={() => setHasPasskey(true)} />
-      <main className="container mx-auto px-4 py-6">
+      <main className="container mx-auto px-4 py-6 flex-1">
         <Switch>
           <Route path="/" component={() => <Dashboard />} />
           <Route path="/project/:id">
@@ -74,6 +75,7 @@ export default function App() {
           </Route>
         </Switch>
       </main>
+      <Footer />
     </div>
   );
 }
