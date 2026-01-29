@@ -317,14 +317,34 @@ function SummaryTab({
   onNavigate: (tab: string) => void;
   getStatusIcon: (status: string, size?: string) => JSX.Element;
 }) {
+  const getStoplightStatus = () => {
+    if (project.decision === 'pause') return 'red';
+    if (project.decision === 'fix') return 'yellow';
+    if (project.decision === 'go') return 'green';
+    return 'pending';
+  };
+
+  const stoplightStatus = getStoplightStatus();
+
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className={`bauhaus-card p-6 ${decision.color} text-white`}>
-        <div className="flex flex-col sm:flex-row items-center gap-4">
-          <div className="text-6xl font-black">{decision.label}</div>
-          <div className="text-center sm:text-left">
-            <h3 className="text-xl font-bold mb-1">Project Decision</h3>
-            <p className="opacity-90">{decision.desc}</p>
+      <div className="bauhaus-card p-6">
+        <div className="flex flex-col md:flex-row items-center justify-center gap-8">
+          <div className="stoplight">
+            <div className={`stoplight-light stoplight-red ${stoplightStatus === 'red' ? 'lit' : ''}`}></div>
+            <div className={`stoplight-light stoplight-yellow ${stoplightStatus === 'yellow' ? 'lit' : ''}`}></div>
+            <div className={`stoplight-light stoplight-green ${stoplightStatus === 'green' ? 'lit' : ''}`}></div>
+          </div>
+          <div className="text-center md:text-left">
+            <div className={`text-5xl font-black mb-2 ${
+              stoplightStatus === 'green' ? 'text-traffic-green' : 
+              stoplightStatus === 'yellow' ? 'text-traffic-yellow' : 
+              stoplightStatus === 'red' ? 'text-traffic-red' : 'text-gray-400'
+            }`}>
+              {decision.label}
+            </div>
+            <h3 className="text-xl font-bold text-cgu-dark mb-1">Project Decision</h3>
+            <p className="text-cgu-dark/70">{decision.desc}</p>
           </div>
         </div>
       </div>

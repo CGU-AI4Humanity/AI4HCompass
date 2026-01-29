@@ -263,3 +263,53 @@ body {
   background: var(--cgu-red);
   color: white;
 }
+
+.stoplight {
+  width: 70px;
+  background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 3px solid var(--cgu-dark);
+  box-shadow: 4px 4px 0 var(--cgu-dark), inset 0 2px 4px rgba(255,255,255,0.1);
+}
+
+.stoplight-light {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 3px solid rgba(0,0,0,0.3);
+  transition: all 0.3s ease;
+}
+
+.stoplight-red {
+  background: #4a1515;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.stoplight-red.lit {
+  background: var(--traffic-red);
+  box-shadow: 0 0 20px var(--traffic-red), 0 0 40px var(--traffic-red), inset 0 -5px 10px rgba(0,0,0,0.3);
+}
+
+.stoplight-yellow {
+  background: #4a4015;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.stoplight-yellow.lit {
+  background: var(--traffic-yellow);
+  box-shadow: 0 0 20px var(--traffic-yellow), 0 0 40px var(--traffic-yellow), inset 0 -5px 10px rgba(0,0,0,0.3);
+}
+
+.stoplight-green {
+  background: #154a15;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.stoplight-green.lit {
+  background: var(--traffic-green);
+  box-shadow: 0 0 20px var(--traffic-green), 0 0 40px var(--traffic-green), inset 0 -5px 10px rgba(0,0,0,0.3);
+}
