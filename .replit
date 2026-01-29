@@ -10,9 +10,10 @@ channel = "stable-24_05"
 requiredFiles = [".replit", "replit.nix", ".config"]
 
 [deployment]
-run = ["tsx", "index.ts"]
-deploymentTarget = "cloudrun"
+run = ["node", "--import", "tsx", "server/src/index.ts"]
+deploymentTarget = "autoscale"
 ignorePorts = false
+build = ["npm", "run", "build"]
 
 [[ports]]
 localPort = 3000
