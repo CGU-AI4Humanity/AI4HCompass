@@ -328,23 +328,33 @@ function SummaryTab({
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="bauhaus-card p-6">
-        <div className="flex flex-col md:flex-row items-center justify-center gap-8">
-          <div className="stoplight">
-            <div className={`stoplight-light stoplight-red ${stoplightStatus === 'red' ? 'lit' : ''}`}></div>
-            <div className={`stoplight-light stoplight-yellow ${stoplightStatus === 'yellow' ? 'lit' : ''}`}></div>
-            <div className={`stoplight-light stoplight-green ${stoplightStatus === 'green' ? 'lit' : ''}`}></div>
+      <div className="bauhaus-card p-8">
+        <h3 className="font-bold text-cgu-dark mb-6 text-center text-xl">Project Status</h3>
+        <div className="flex flex-col items-center gap-6">
+          <div className="stoplight-container">
+            <div className="stoplight-visor"></div>
+            <div className="stoplight-housing">
+              <div className={`stoplight-bulb stoplight-bulb-red ${stoplightStatus === 'red' ? 'lit' : ''}`}>
+                <div className="stoplight-reflection"></div>
+              </div>
+              <div className={`stoplight-bulb stoplight-bulb-yellow ${stoplightStatus === 'yellow' ? 'lit' : ''}`}>
+                <div className="stoplight-reflection"></div>
+              </div>
+              <div className={`stoplight-bulb stoplight-bulb-green ${stoplightStatus === 'green' ? 'lit' : ''}`}>
+                <div className="stoplight-reflection"></div>
+              </div>
+            </div>
+            <div className="stoplight-pole"></div>
           </div>
-          <div className="text-center md:text-left">
-            <div className={`text-5xl font-black mb-2 ${
+          <div className="text-center">
+            <div className={`text-4xl font-black mb-2 uppercase tracking-wide ${
               stoplightStatus === 'green' ? 'text-traffic-green' : 
               stoplightStatus === 'yellow' ? 'text-traffic-yellow' : 
               stoplightStatus === 'red' ? 'text-traffic-red' : 'text-gray-400'
             }`}>
-              {decision.label}
+              Status: {decision.label}
             </div>
-            <h3 className="text-xl font-bold text-cgu-dark mb-1">Project Decision</h3>
-            <p className="text-cgu-dark/70">{decision.desc}</p>
+            <p className="text-lg text-cgu-dark/80 max-w-md">{decision.desc}</p>
           </div>
         </div>
       </div>

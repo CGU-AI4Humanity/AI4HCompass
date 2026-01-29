@@ -264,52 +264,109 @@ body {
   color: white;
 }
 
-.stoplight {
-  width: 70px;
-  background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
-  border-radius: 12px;
-  padding: 10px;
+.stoplight-container {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  border: 3px solid var(--cgu-dark);
-  box-shadow: 4px 4px 0 var(--cgu-dark), inset 0 2px 4px rgba(255,255,255,0.1);
+  align-items: center;
 }
 
-.stoplight-light {
-  width: 50px;
-  height: 50px;
+.stoplight-visor {
+  width: 100px;
+  height: 20px;
+  background: #1a1a1a;
+  border-radius: 4px 4px 0 0;
+  position: relative;
+}
+
+.stoplight-visor::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10px;
+  right: 10px;
+  height: 8px;
+  background: linear-gradient(180deg, #3a3a3a, #1a1a1a);
+  border-radius: 2px 2px 0 0;
+}
+
+.stoplight-housing {
+  width: 90px;
+  background: linear-gradient(90deg, #1a1a1a 0%, #3a3a3a 20%, #4a4a4a 50%, #3a3a3a 80%, #1a1a1a 100%);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 4px solid #0a0a0a;
+  box-shadow: 
+    0 8px 16px rgba(0,0,0,0.4),
+    inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
+.stoplight-bulb {
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
-  border: 3px solid rgba(0,0,0,0.3);
+  position: relative;
   transition: all 0.3s ease;
+  border: 4px solid #0a0a0a;
 }
 
-.stoplight-red {
-  background: #4a1515;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+.stoplight-reflection {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 20px;
+  height: 20px;
+  background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%);
+  border-radius: 50%;
 }
 
-.stoplight-red.lit {
-  background: var(--traffic-red);
-  box-shadow: 0 0 20px var(--traffic-red), 0 0 40px var(--traffic-red), inset 0 -5px 10px rgba(0,0,0,0.3);
+.stoplight-bulb-red {
+  background: radial-gradient(circle at 30% 30%, #5a2020, #2a0a0a);
+  box-shadow: inset 0 4px 8px rgba(0,0,0,0.6);
 }
 
-.stoplight-yellow {
-  background: #4a4015;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+.stoplight-bulb-red.lit {
+  background: radial-gradient(circle at 30% 30%, #ff6b6b, #ef4444, #dc2626);
+  box-shadow: 
+    0 0 30px rgba(239, 68, 68, 0.8),
+    0 0 60px rgba(239, 68, 68, 0.5),
+    0 0 90px rgba(239, 68, 68, 0.3),
+    inset 0 -8px 16px rgba(0,0,0,0.3);
 }
 
-.stoplight-yellow.lit {
-  background: var(--traffic-yellow);
-  box-shadow: 0 0 20px var(--traffic-yellow), 0 0 40px var(--traffic-yellow), inset 0 -5px 10px rgba(0,0,0,0.3);
+.stoplight-bulb-yellow {
+  background: radial-gradient(circle at 30% 30%, #5a5020, #2a2a0a);
+  box-shadow: inset 0 4px 8px rgba(0,0,0,0.6);
 }
 
-.stoplight-green {
-  background: #154a15;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+.stoplight-bulb-yellow.lit {
+  background: radial-gradient(circle at 30% 30%, #fde047, #eab308, #ca8a04);
+  box-shadow: 
+    0 0 30px rgba(234, 179, 8, 0.8),
+    0 0 60px rgba(234, 179, 8, 0.5),
+    0 0 90px rgba(234, 179, 8, 0.3),
+    inset 0 -8px 16px rgba(0,0,0,0.3);
 }
 
-.stoplight-green.lit {
-  background: var(--traffic-green);
-  box-shadow: 0 0 20px var(--traffic-green), 0 0 40px var(--traffic-green), inset 0 -5px 10px rgba(0,0,0,0.3);
+.stoplight-bulb-green {
+  background: radial-gradient(circle at 30% 30%, #205a20, #0a2a0a);
+  box-shadow: inset 0 4px 8px rgba(0,0,0,0.6);
+}
+
+.stoplight-bulb-green.lit {
+  background: radial-gradient(circle at 30% 30%, #4ade80, #22c55e, #16a34a);
+  box-shadow: 
+    0 0 30px rgba(34, 197, 94, 0.8),
+    0 0 60px rgba(34, 197, 94, 0.5),
+    0 0 90px rgba(34, 197, 94, 0.3),
+    inset 0 -8px 16px rgba(0,0,0,0.3);
+}
+
+.stoplight-pole {
+  width: 20px;
+  height: 40px;
+  background: linear-gradient(90deg, #2a2a2a, #4a4a4a, #2a2a2a);
+  border-radius: 0 0 4px 4px;
 }
