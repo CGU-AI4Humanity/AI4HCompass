@@ -1,6 +1,49 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { Plus, FolderOpen, Trash2, ArrowRight, CheckCircle, AlertTriangle, XCircle, Clock } from 'lucide-react';
+import { Plus, FolderOpen, Trash2, ArrowRight, CheckCircle, AlertTriangle, XCircle, Clock, X, Sparkles } from 'lucide-react';
+
+const dimensionDescriptions: Record<string, { name: string; description: string; question: string }> = {
+  N: {
+    name: 'Purpose',
+    description: 'The fundamental human need or problem that this AI initiative aims to address.',
+    question: 'What human need does this AI serve? Why does this solution need to exist?'
+  },
+  NE: {
+    name: 'People',
+    description: 'Understanding who benefits from and who could potentially be harmed by this AI system.',
+    question: 'Who benefits from this AI? Who could be negatively impacted? Have we considered all stakeholders?'
+  },
+  E: {
+    name: 'Values',
+    description: 'The human values, ethical principles, and moral considerations built into the AI design.',
+    question: 'What values are embedded in the design? How do we ensure fairness, transparency, and respect for human dignity?'
+  },
+  SE: {
+    name: 'Risks',
+    description: 'Potential failures, unintended consequences, and mitigation strategies.',
+    question: 'What can go wrong? What are the worst-case scenarios? How do we prevent and respond to failures?'
+  },
+  S: {
+    name: 'Human-in-the-Loop',
+    description: 'Points where human oversight, control, and intervention are maintained.',
+    question: 'Where do humans stay in control? Can users override AI decisions? Is there meaningful human oversight?'
+  },
+  SW: {
+    name: 'Data & Privacy',
+    description: 'Data governance, privacy protection, consent mechanisms, and access controls.',
+    question: 'What data is collected and why? How is privacy protected? Who has access? Is there informed consent?'
+  },
+  W: {
+    name: 'Outcomes',
+    description: 'The measurable positive impact and value this AI will deliver to users and society.',
+    question: 'What positive outcomes will this deliver? How do we measure success beyond metrics?'
+  },
+  NW: {
+    name: 'Metrics of Humanity',
+    description: 'How we track and ensure trust, dignity, fairness, and human well-being over time.',
+    question: 'How do we measure trust and dignity? What human-centered KPIs will we track?'
+  }
+};
 
 interface Project {
   id: number;
@@ -18,6 +61,7 @@ export default function Dashboard() {
   const [showCreate, setShowCreate] = useState(false);
   const [newProject, setNewProject] = useState({ name: '', description: '', goalStatement: '' });
   const [creating, setCreating] = useState(false);
+  const [selectedDimension, setSelectedDimension] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProjects();
@@ -245,35 +289,65 @@ export default function Dashboard() {
         <h3 className="font-bold text-cgu-dark mb-2">About the AI for Humanity Compass</h3>
         <p className="text-sm text-cgu-dark/70 mb-4">
           The Compass is a decision tool for AI projects. It helps teams keep every AI initiative aligned with 
-          human dignity, safety, and well-being through 8 essential dimensions.
+          human dignity, safety, and well-being through 8 essential dimensions. <strong>Click any dimension to learn more.</strong>
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-          <div className="bg-white p-2 border border-cgu-dark/10">
-            <strong>N</strong> Purpose
+          {Object.entries(dimensionDescriptions).map(([code, dim]) => (
+            <button
+              key={code}
+              onClick={() => setSelectedDimension(code)}
+              className="bg-white p-2 border border-cgu-dark/10 text-left hover:bg-cgu-red/10 hover:border-cgu-red transition-colors cursor-pointer"
+            >
+              <strong>{code}</strong> {dim.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-6 bauhaus-card p-6 bg-gradient-to-r from-cgu-red/10 to-cgu-maroon/10 border-cgu-red">
+        <div className="flex items-start gap-4">
+          <div className="bg-cgu-red text-white p-3 rounded-full">
+            <Sparkles className="w-6 h-6" />
           </div>
-          <div className="bg-white p-2 border border-cgu-dark/10">
-            <strong>NE</strong> People
-          </div>
-          <div className="bg-white p-2 border border-cgu-dark/10">
-            <strong>E</strong> Values
-          </div>
-          <div className="bg-white p-2 border border-cgu-dark/10">
-            <strong>SE</strong> Risks
-          </div>
-          <div className="bg-white p-2 border border-cgu-dark/10">
-            <strong>S</strong> Human-in-Loop
-          </div>
-          <div className="bg-white p-2 border border-cgu-dark/10">
-            <strong>SW</strong> Data & Privacy
-          </div>
-          <div className="bg-white p-2 border border-cgu-dark/10">
-            <strong>W</strong> Outcomes
-          </div>
-          <div className="bg-white p-2 border border-cgu-dark/10">
-            <strong>NW</strong> Metrics
+          <div>
+            <h3 className="font-bold text-cgu-dark mb-1 flex items-center gap-2">
+              Coming Soon!
+              <span className="text-xs bg-cgu-red text-white px-2 py-0.5 rounded-full font-normal">NEW</span>
+            </h3>
+            <p className="text-sm text-cgu-dark/80">
+              <strong>AI-powered recommendations for risks and issues</strong> — When you enter a Risk or Issue for each dimension, 
+              you can request AI to provide a list of mitigations automatically! Stay tuned...
+            </p>
           </div>
         </div>
       </div>
+
+      {selectedDimension && dimensionDescriptions[selectedDimension] && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => setSelectedDimension(null)}>
+          <div className="bauhaus-card p-6 w-full max-w-md animate-fade-in" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <span className="bg-cgu-red text-white px-3 py-1 text-xl font-black">{selectedDimension}</span>
+                <h3 className="text-xl font-bold text-cgu-dark">{dimensionDescriptions[selectedDimension].name}</h3>
+              </div>
+              <button onClick={() => setSelectedDimension(null)} className="text-cgu-dark/50 hover:text-cgu-dark">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <p className="text-cgu-dark/80 mb-4">{dimensionDescriptions[selectedDimension].description}</p>
+            <div className="bg-cgu-green/10 p-4 border-l-4 border-cgu-green">
+              <p className="text-sm font-semibold text-cgu-dark mb-1">Key Question:</p>
+              <p className="text-sm text-cgu-dark/80 italic">"{dimensionDescriptions[selectedDimension].question}"</p>
+            </div>
+            <button
+              onClick={() => setSelectedDimension(null)}
+              className="mt-4 w-full bauhaus-btn bg-cgu-red text-white py-2"
+            >
+              Got it!
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
