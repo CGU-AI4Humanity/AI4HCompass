@@ -1,0 +1,16 @@
+[1G[0K⠙[1G[0K
+> ai-humanity-compass@1.0.0 dev
+> npm run build:client && tsx watch server/src/index.ts
+
+[1G[0K⠙[1G[0K
+> ai-humanity-compass@1.0.0 build:client
+> vite build
+
+[1G[0K[36mvite v5.4.21 [32mbuilding for production...[36m[39m
+[2K[1Gtransforming (1) [2mindex.html[22m[2K[1Gtransforming (4) [2msrc/App.tsx[22m[2K[1Gtransforming (7) [2m../node_modules/react/index.js[22m[2K[1Gtransforming (20) [2msrc/pages/ProjectView.tsx[22m[2K[1Gtransforming (30) [2m../node_modules/wouter/src/use-sync-external-store.js[22m[2K[1Gtransforming (34) [2m../node_modules/lucide-react/dist/esm/icons/a-arrow-down.js[22m[2K[1Gtransforming (1030) [2m../node_modules/react-dom/index.js[22m[2K[1Gtransforming (1035) [2m../node_modules/react-dom/client.js[22m[2K[1Gtransforming (1576) [2m../node_modules/lucide-react/dist/esm/defaultAttributes.js[22m[2K[1G[32m✓[39m 1582 modules transformed.
+[2K[1Grendering chunks (1)...[2K[1G[2K[1Gcomputing gzip size (0)...[2K[1Gcomputing gzip size (1)...[2K[1Gcomputing gzip size (2)...[2K[1Gcomputing gzip size (3)...[2K[1G[2m../dist/public/[22m[32mindex.html                 [39m[1m[2m  0.74 kB[22m[1m[22m[2m │ gzip:  0.42 kB[22m
+[2m../dist/public/[22m[2massets/[22m[35mindex-zqXIFkFk.css  [39m[1m[2m 20.91 kB[22m[1m[22m[2m │ gzip:  5.12 kB[22m
+[2m../dist/public/[22m[2massets/[22m[36mindex-BCV3Mz7M.js   [39m[1m[2m196.18 kB[22m[1m[22m[2m │ gzip: 60.00 kB[22m
+[32m✓ built in 2.24s[39m
+[1G[0K⠙[1G[0KDatabase initialized successfully
+Server running on port 5000
