@@ -1,18 +1,73 @@
 # AI for Humanity Compass
 
-A decision-making tool for assessing AI projects against 8 dimensions of human dignity, safety, and well-being — built by Dr. Itamar Shabtai, Director of the Center for Information Systems and Technology (CISAT) at Claremont Graduate University.
+A decision-making tool for assessing AI projects against 8 dimensions of human dignity, safety, and well-being.
+
+**Leadership & team:** Developed under the leadership of **Dr. Itamar Shabtai**, Director of the AI for Humanity Lab (Claremont Graduate University). The project is currently being executed by AI for Humanity Lab Fellows **Mahesh Balan**, **Aashish Sunar**, and **Gauri Parnaik**.
+
+**Framework guide (PDF):** [AI for Humanity Compass — Practical Guide for Responsible AI Decisions (V5)](attached_assets/AI_For_Humanity_Compass_V5.pdf) by Itamar Shabtai, Ph.D. (October 2025). Source Word document: [`AI_For_Humanity_Compass_V5_1769706807313.docx`](attached_assets/AI_For_Humanity_Compass_V5_1769706807313.docx).
+
+---
+
+## Key Messages from the Compass Guide
+
+The Compass exists because AI moves fast, while people, organizations, and policy move slowly. It helps teams slow down at the right moments, ask the right questions, and take responsibility for impact — not only capability, efficiency, or cost.
+
+### What it is
+- A **practical decision tool** (not theory) to keep every AI initiative aligned with human dignity, safety, and well-being — before launch, during deployment, and after it is live.
+- A shared language for eight essential questions: real human need; who benefits and who could be harmed; values in the design; what can go wrong; where a human stays in control; privacy and data boundaries; the good we aim to create; and how we measure trust, fairness, and well-being over time.
+
+### The problem it solves
+Most AI projects optimize for “What can we build?” and “How much can we save?” What gets missed:
+- Unclear human impact (who is helped, stressed, or exposed to harm)
+- Values that stay on slides instead of owners, tests, and review cycles
+- No safety gates until after a complaint, headline, or injury
+- No dignity check (stress, surveillance, bias, exclusion as outcomes)
+- No clear escalation path when a real human must take responsibility
+- “Humans in the loop” who lack authority, training, or capacity to intervene
+
+### The eight dimensions
+| Direction | Dimension | Focus |
+|-----------|-----------|--------|
+| N | Purpose | The human need — why this matters to a person, not just the business |
+| NE | People | Who we help, who we might hurt, and whom we must protect |
+| E | Values | Human values we refuse to trade away, and how we build them in |
+| SE | Risks | Main ways this can go wrong, and what we are doing about it |
+| S | Human-in-the-Loop | Where a qualified human can review, approve, or override — with skills, authority, and capacity |
+| SW | Data & Privacy | Data boundaries, consent, retention, and access |
+| W | Outcomes | Positive impact for people, the organization, and society |
+| NW | Metrics of Humanity | Tracking trust, dignity, fairness, and well-being over time |
+
+### How to use it (Go / Fix / Pause)
+1. **Write the goal** in one sentence: “We are building ______ so that ______ can ______.”
+2. **Walk the Compass** — short answers for each of the eight points.
+3. **Traffic-light** each point: Green = clear and acceptable; Yellow = needs work; Red = unsafe / unclear / not acceptable. **If any point is Red, you do not ship.**
+4. **Decide:** Go (all Green/Yellow with owners and deadlines), Fix (too many Yellows or missing owners), or Pause (unacceptable dignity/safety risk).
+
+### Why it matters
+- Stops “ship now, clean up later”
+- Protects vulnerable groups, not just the average user
+- Turns ethics into ownership and action
+- Gives leaders permission to pause **before** harm, not after
+
+### Organizational call to action
+- Treat the Compass as a **launch gate** for AI that affects access, eligibility, safety, health, money, surveillance, or that replaces human judgment
+- Complete it with a **cross-functional** group (not one person alone), at build / pilot / scale gates
+- Put the right humans in the loop — with authority, skills, and capacity
+- Track humanity metrics (trust, clarity, equity, well-being, accessibility) next to cost and performance
+- Be willing to say **Pause** when the cost to human dignity is too high
 
 ---
 
 ## Table of Contents
 
-1. [Prerequisites](#prerequisites)
-2. [Local Setup](#local-setup)
-3. [Environment Variables](#environment-variables)
-4. [Database Setup](#database-setup)
-5. [Running the App](#running-the-app)
-6. [Project Structure](#project-structure)
-7. [Moving to GitHub](#moving-to-github)
+1. [Key Messages from the Compass Guide](#key-messages-from-the-compass-guide)
+2. [Prerequisites](#prerequisites)
+3. [Local Setup](#local-setup)
+4. [Environment Variables](#environment-variables)
+5. [Database Setup](#database-setup)
+6. [Running the App](#running-the-app)
+7. [Project Structure](#project-structure)
+8. [Moving to GitHub](#moving-to-github)
 
 ---
 
@@ -327,4 +382,4 @@ Double-check your `DATABASE_URL` in `.env` and confirm the database was created 
 
 ---
 
-*Built by Dr. Itamar Shabtai — AI for Humanity Lab, Claremont Graduate University*
+*Developed under the leadership of Dr. Itamar Shabtai, Director of the AI for Humanity Lab, Claremont Graduate University. Currently executed by AI for Humanity Lab Fellows Mahesh Balan, Aashish Sunar, and Gauri Parnaik.*
