@@ -44,6 +44,16 @@ function randomToken(): string {
   return Array.from(values, (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
+function escapeHtml(value: string): string {
+  return value.replace(/[&<>'"]/g, (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "'": "&#39;",
+    '"': "&quot;",
+  })[character]!);
+}
+
 function clientIp(request: Request): string {
   return request.headers.get("cf-connecting-ip") ?? request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
 }
@@ -84,20 +94,27 @@ export async function requestSignInCode(request: Request, emailInput: string): P
 
   const code = randomCode();
   const codeHash = await sha256(`${email}:${code}:${secret}`);
+  const challengeId = crypto.randomUUID();
   await run(
     "INSERT INTO authentication_codes (id, email, code_hash, ip_hash, attempts, expires_at, created_at) VALUES (?, ?, ?, ?, 0, ?, ?)",
-    crypto.randomUUID(),
+    challengeId,
     email,
     codeHash,
     ipHash,
     new Date(now + TEN_MINUTES).toISOString(),
     new Date(now).toISOString(),
   );
-  const delivered = await sendEmail(
-    email,
-    "Your AI for Humanity Compass sign-in code",
-    `<div style="font-family:Arial,sans-serif;color:#27221f"><h2 style="color:#8b1538">AI for Humanity Compass</h2><p>Your one-time sign-in code is:</p><p style="font-size:30px;font-weight:700;letter-spacing:6px">${code}</p><p>This code expires in 10 minutes. If you did not request it, you can ignore this email.</p></div>`,
-  );
+  let delivered: boolean;
+  try {
+    delivered = await sendEmail(
+      email,
+      "Your AI for Humanity Compass sign-in code",
+      `<div style="font-family:Arial,sans-serif;color:#27221f"><h2 style="color:#8b1538">AI for Humanity Compass</h2><p>Your one-time sign-in code is:</p><p style="font-size:30px;font-weight:700;letter-spacing:6px">${code}</p><p>This code expires in 10 minutes. If you did not request it, you can ignore this email.</p></div>`,
+    );
+  } catch (error) {
+    await run("DELETE FROM authentication_codes WHERE id = ?", challengeId);
+    throw error;
+  }
   return delivered ? {} : { devCode: code };
 }
 
@@ -109,7 +126,7 @@ async function acceptPendingInvitations(user: UserRow): Promise<void> {
   );
   for (const invitation of invitations) {
     await run(
-      "INSERT INTO memberships (org_id, user_id, role) VALUES (?, ?, ?) ON CONFLICT(org_id, user_id) DO UPDATE SET role = excluded.role",
+      "INSERT INTO memberships (org_id, user_id, role) VALUES (?, ?, ?) ON CONFLICT(org_id, user_id) DO NOTHING",
       invitation.org_id,
       user.id,
       invitation.role,
@@ -129,10 +146,26 @@ export async function verifySignInCode(request: Request, emailInput: string, cod
   if (!challenge || challenge.attempts >= 5) throw new ApiError(400, "That code is invalid or has expired.");
   const submittedHash = await sha256(`${email}:${code}:${secret}`);
   if (submittedHash !== challenge.code_hash) {
-    await run("UPDATE authentication_codes SET attempts = attempts + 1 WHERE id = ?", challenge.id);
+    await run(
+      "UPDATE authentication_codes SET attempts = attempts + 1 WHERE id = ? AND used_at IS NULL AND attempts < 5 AND expires_at > ?",
+      challenge.id,
+      new Date().toISOString(),
+    );
     throw new ApiError(400, "That code is invalid or has expired.");
   }
-  await run("UPDATE authentication_codes SET used_at = ? WHERE id = ?", new Date().toISOString(), challenge.id);
+  const now = new Date().toISOString();
+  const consumed = await run(
+    `UPDATE authentication_codes SET used_at = ? WHERE email = ? AND used_at IS NULL AND EXISTS (
+      SELECT 1 FROM authentication_codes target
+      WHERE target.id = ? AND target.email = ? AND target.used_at IS NULL AND target.attempts < 5 AND target.expires_at > ?
+    )`,
+    now,
+    email,
+    challenge.id,
+    email,
+    now,
+  );
+  if (!consumed.meta.changes) throw new ApiError(400, "That code is invalid or has expired.");
 
   let user = await first<UserRow>("SELECT id, email FROM users WHERE email = ?", email);
   if (!user) {
@@ -190,9 +223,10 @@ export async function revokeSession(request: Request): Promise<string> {
 
 export async function sendOrganizationInvitation(email: string, organizationName: string): Promise<void> {
   const url = getRuntimeEnv().APP_URL ?? "";
+  const safeOrganizationName = escapeHtml(organizationName);
   await sendEmail(
     email,
     `You are invited to ${organizationName} in AI for Humanity Compass`,
-    `<div style="font-family:Arial,sans-serif;color:#27221f"><h2 style="color:#8b1538">AI for Humanity Compass</h2><p>You have been invited to join <strong>${organizationName}</strong>.</p><p><a href="${url}" style="display:inline-block;background:#8b1538;color:white;padding:12px 18px;text-decoration:none">Open the Compass</a></p><p>Sign in with this email address to join automatically.</p></div>`,
+    `<div style="font-family:Arial,sans-serif;color:#27221f"><h2 style="color:#8b1538">AI for Humanity Compass</h2><p>You have been invited to join <strong>${safeOrganizationName}</strong>.</p><p><a href="${escapeHtml(url)}" style="display:inline-block;background:#8b1538;color:white;padding:12px 18px;text-decoration:none">Open the Compass</a></p><p>Sign in with this email address to join automatically.</p></div>`,
   );
 }

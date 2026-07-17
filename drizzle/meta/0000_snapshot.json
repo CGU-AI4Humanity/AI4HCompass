@@ -169,7 +169,12 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "checkConstraints": {
+        "dimensions_status_check": {
+          "name": "dimensions_status_check",
+          "value": "\"dimensions\".\"status\" IN ('green', 'yellow', 'red', 'pending')"
+        }
+      }
     },
     "invitations": {
       "name": "invitations",
@@ -285,7 +290,12 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "checkConstraints": {
+        "invitations_role_check": {
+          "name": "invitations_role_check",
+          "value": "\"invitations\".\"role\" IN ('admin', 'assessor', 'viewer')"
+        }
+      }
     },
     "issues": {
       "name": "issues",
@@ -416,7 +426,16 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "checkConstraints": {
+        "issues_score_check": {
+          "name": "issues_score_check",
+          "value": "\"issues\".\"score\" BETWEEN 0 AND 100"
+        },
+        "issues_status_check": {
+          "name": "issues_status_check",
+          "value": "\"issues\".\"status\" IN ('green', 'yellow', 'red')"
+        }
+      }
     },
     "memberships": {
       "name": "memberships",
@@ -498,7 +517,12 @@
         }
       },
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "checkConstraints": {
+        "memberships_role_check": {
+          "name": "memberships_role_check",
+          "value": "\"memberships\".\"role\" IN ('admin', 'assessor', 'viewer')"
+        }
+      }
     },
     "mitigations": {
       "name": "mitigations",
@@ -840,7 +864,12 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "checkConstraints": {
+        "projects_decision_check": {
+          "name": "projects_decision_check",
+          "value": "\"projects\".\"decision\" IN ('go', 'fix', 'pause', 'pending')"
+        }
+      }
     },
     "sessions": {
       "name": "sessions",

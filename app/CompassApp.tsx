@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import {
   AlertTriangle,
   ArrowLeft,
@@ -149,10 +149,14 @@ export function CompassApp() {
   }
 
   async function signOut() {
-    await request("/api/auth/logout", { method: "POST" });
-    setUser(null);
-    setOrganizations([]);
-    setProjects([]);
+    try {
+      await request("/api/auth/logout", { method: "POST" });
+      setUser(null);
+      setOrganizations([]);
+      setProjects([]);
+    } catch (reason) {
+      setError((reason as Error).message);
+    }
   }
 
   async function removeProject() {
@@ -463,9 +467,9 @@ function MembersView({ organization, members, onBack, onRefresh }: {
     try {
       setBusy(true);
       setMessage("");
-      await request(`/api/organizations/${organization.id}/members`, { method: "POST", body: JSON.stringify({ email, role }) });
+      const result = await request<{ status: "active" | "invited" }>(`/api/organizations/${organization.id}/members`, { method: "POST", body: JSON.stringify({ email, role }) });
       setEmail("");
-      setMessage("Invitation sent. The membership will activate when the recipient signs in.");
+      setMessage(result.status === "active" ? "Member added. Their access is active now." : "Invitation sent. The membership will activate when the recipient signs in.");
       await onRefresh();
     } catch (reason) {
       setMessage((reason as Error).message);
@@ -514,7 +518,7 @@ function MembersView({ organization, members, onBack, onRefresh }: {
               <select aria-label={`Role for ${member.email}`} value={member.role} onChange={(event) => updateRole(member.id, event.target.value as OrganizationRole)}><option value="admin">Admin</option><option value="assessor">Assessor</option><option value="viewer">Viewer</option></select>
             ) : <span className="role-pill">{member.role}</span>}
             <span className={`member-status ${member.status}`}>{member.status}</span>
-            {organization.role === "admin" && member.status === "active" ? <button className="icon-button danger-ghost" onClick={() => removeMember(member.id)} aria-label={`Remove ${member.email}`}><Trash2 size={17} /></button> : <span />}
+            {organization.role === "admin" ? <button className="icon-button danger-ghost" onClick={() => removeMember(member.id)} aria-label={member.status === "active" ? `Remove ${member.email}` : `Revoke invitation for ${member.email}`}><Trash2 size={17} /></button> : <span />}
           </div>
         ))}
       </div>
@@ -587,27 +591,44 @@ function IssueEditor({ issue, canEdit, onChanged }: { issue: IssueRecord; canEdi
   const [description, setDescription] = useState(issue.description);
   const [score, setScore] = useState(issue.score);
   const [saving, setSaving] = useState(false);
+  const [failure, setFailure] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [showMitigationForm, setShowMitigationForm] = useState(false);
+  const saveInFlight = useRef(false);
   const localStatus: Exclude<AttributeStatus, "pending"> = score < 40 ? "red" : score < 70 ? "yellow" : "green";
 
   useEffect(() => { setTitle(issue.title); setDescription(issue.description); setScore(issue.score); }, [issue]);
 
   async function save() {
-    if (!canEdit || (title === issue.title && description === issue.description && score === issue.score)) return;
+    if (!canEdit || saveInFlight.current || (title === issue.title && description === issue.description && score === issue.score)) return;
+    saveInFlight.current = true;
     try {
       setSaving(true);
+      setFailure("");
       await request(`/api/issues/${issue.id}`, { method: "PATCH", body: JSON.stringify({ title, description, score }) });
       await onChanged();
+    } catch (reason) {
+      setFailure((reason as Error).message);
     } finally {
+      saveInFlight.current = false;
       setSaving(false);
     }
   }
 
   async function remove() {
-    setSaving(true);
-    await request(`/api/issues/${issue.id}`, { method: "DELETE" });
-    await onChanged();
+    if (saveInFlight.current) return;
+    saveInFlight.current = true;
+    try {
+      setSaving(true);
+      setFailure("");
+      await request(`/api/issues/${issue.id}`, { method: "DELETE" });
+      await onChanged();
+    } catch (reason) {
+      setFailure((reason as Error).message);
+    } finally {
+      saveInFlight.current = false;
+      setSaving(false);
+    }
   }
 
   return (
@@ -617,6 +638,7 @@ function IssueEditor({ issue, canEdit, onChanged }: { issue: IssueRecord; canEdi
         <div className="score-readout"><strong>{score}</strong><span>/ 100</span></div>
         {saving && <span className="saving-text">Saving…</span>}
       </div>
+      {failure && <div className="form-alert" role="alert"><CircleAlert size={17} /> {failure}</div>}
       <label><span>Issue or goal</span><input value={title} onChange={(event) => setTitle(event.target.value)} onBlur={save} disabled={!canEdit} /></label>
       <label><span>Evidence and context</span><textarea value={description} onChange={(event) => setDescription(event.target.value)} onBlur={save} disabled={!canEdit} placeholder="Describe the evidence, affected people, assumptions, and open questions." /></label>
       <div className="score-editor">
@@ -643,14 +665,18 @@ function AddIssueForm({ dimensionId, projectId, onChanged }: { dimensionId: stri
   const [description, setDescription] = useState("");
   const [score, setScore] = useState(50);
   const [busy, setBusy] = useState(false);
+  const [failure, setFailure] = useState("");
 
   async function submit(event: FormEvent) {
     event.preventDefault();
     setBusy(true);
     try {
+      setFailure("");
       await request(`/api/projects/${projectId}/issues`, { method: "POST", body: JSON.stringify({ dimensionId, title, description, score }) });
       setTitle(""); setDescription(""); setScore(50); setOpen(false);
       await onChanged();
+    } catch (reason) {
+      setFailure((reason as Error).message);
     } finally {
       setBusy(false);
     }
@@ -660,6 +686,7 @@ function AddIssueForm({ dimensionId, projectId, onChanged }: { dimensionId: stri
   return (
     <form className="new-item-form" onSubmit={submit}>
       <div className="form-title"><div><span className="eyebrow">New assessment item</span><h3>Document what the team knows</h3></div><button type="button" className="icon-button" onClick={() => setOpen(false)} aria-label="Cancel adding item"><X size={18} /></button></div>
+      {failure && <div className="form-alert" role="alert"><CircleAlert size={17} /> {failure}</div>}
       <label><span>Issue or goal</span><input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Example: Patients can appeal an automated recommendation" required /></label>
       <label><span>Evidence and context</span><textarea value={description} onChange={(event) => setDescription(event.target.value)} placeholder="Add the evidence, assumptions, affected people, or unresolved questions." /></label>
       <label className="new-score"><span>Readiness score: <strong>{score}</strong></span><input type="range" min="0" max="100" value={score} onChange={(event) => setScore(Number(event.target.value))} /></label>
@@ -673,18 +700,39 @@ function MitigationEditor({ mitigation, canEdit, onChanged }: { mitigation: Miti
   const [owner, setOwner] = useState(mitigation.owner);
   const [deadline, setDeadline] = useState(mitigation.deadline ?? "");
   const [removeConfirm, setRemoveConfirm] = useState(false);
+  const [failure, setFailure] = useState("");
+  const saveInFlight = useRef(false);
 
   useEffect(() => { setDescription(mitigation.description); setOwner(mitigation.owner); setDeadline(mitigation.deadline ?? ""); }, [mitigation]);
 
   async function save(extra?: Partial<MitigationRecord>) {
-    if (!canEdit) return;
-    await request(`/api/mitigations/${mitigation.id}`, { method: "PATCH", body: JSON.stringify({ description, owner, deadline: deadline || null, ...extra }) });
-    await onChanged();
+    const nextDeadline = deadline || null;
+    const unchanged = description === mitigation.description && owner === mitigation.owner && nextDeadline === mitigation.deadline && (extra?.completed ?? mitigation.completed) === mitigation.completed;
+    if (!canEdit || saveInFlight.current || unchanged) return;
+    saveInFlight.current = true;
+    try {
+      setFailure("");
+      await request(`/api/mitigations/${mitigation.id}`, { method: "PATCH", body: JSON.stringify({ description, owner, deadline: nextDeadline, ...extra }) });
+      await onChanged();
+    } catch (reason) {
+      setFailure((reason as Error).message);
+    } finally {
+      saveInFlight.current = false;
+    }
   }
 
   async function remove() {
-    await request(`/api/mitigations/${mitigation.id}`, { method: "DELETE" });
-    await onChanged();
+    if (saveInFlight.current) return;
+    saveInFlight.current = true;
+    try {
+      setFailure("");
+      await request(`/api/mitigations/${mitigation.id}`, { method: "DELETE" });
+      await onChanged();
+    } catch (reason) {
+      setFailure((reason as Error).message);
+    } finally {
+      saveInFlight.current = false;
+    }
   }
 
   return (
@@ -695,6 +743,7 @@ function MitigationEditor({ mitigation, canEdit, onChanged }: { mitigation: Miti
         <div><input value={owner} onChange={(event) => setOwner(event.target.value)} onBlur={() => save()} disabled={!canEdit} placeholder="Owner" aria-label="Mitigation owner" /><input type="date" value={deadline} onChange={(event) => setDeadline(event.target.value)} onBlur={() => save()} disabled={!canEdit} aria-label="Mitigation due date" /></div>
       </div>
       {canEdit && (removeConfirm ? <div className="mini-confirm"><button className="text-button danger-text" onClick={remove}>Delete</button><button className="text-button" onClick={() => setRemoveConfirm(false)}>Keep</button></div> : <button className="icon-button danger-ghost" onClick={() => setRemoveConfirm(true)} aria-label="Delete mitigation"><Trash2 size={16} /></button>)}
+      {failure && <div className="form-alert mitigation-error" role="alert"><CircleAlert size={16} /> {failure}</div>}
     </div>
   );
 }
@@ -703,20 +752,31 @@ function AddMitigationForm({ issueId, onClose, onChanged }: { issueId: string; o
   const [description, setDescription] = useState("");
   const [owner, setOwner] = useState("");
   const [deadline, setDeadline] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [failure, setFailure] = useState("");
 
   async function submit(event: FormEvent) {
     event.preventDefault();
-    await request(`/api/issues/${issueId}/mitigations`, { method: "POST", body: JSON.stringify({ description, owner, deadline: deadline || null }) });
-    onClose();
-    await onChanged();
+    try {
+      setBusy(true);
+      setFailure("");
+      await request(`/api/issues/${issueId}/mitigations`, { method: "POST", body: JSON.stringify({ description, owner, deadline: deadline || null }) });
+      onClose();
+      await onChanged();
+    } catch (reason) {
+      setFailure((reason as Error).message);
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
     <form className="mitigation-form" onSubmit={submit}>
+      {failure && <div className="form-alert mitigation-form-error" role="alert"><CircleAlert size={16} /> {failure}</div>}
       <input value={description} onChange={(event) => setDescription(event.target.value)} placeholder="Describe the safeguard or corrective action" aria-label="Mitigation description" required />
       <input value={owner} onChange={(event) => setOwner(event.target.value)} placeholder="Owner" aria-label="Mitigation owner" />
       <input type="date" value={deadline} onChange={(event) => setDeadline(event.target.value)} aria-label="Mitigation due date" />
-      <button className="button primary compact">Add</button><button type="button" className="text-button" onClick={onClose}>Cancel</button>
+      <button className="button primary compact" disabled={busy}>{busy ? "Adding…" : "Add"}</button><button type="button" className="text-button" onClick={onClose}>Cancel</button>
     </form>
   );
 }
@@ -777,12 +837,46 @@ function CreateProjectDialog({ organization, onClose, onCreated }: { organizatio
 }
 
 function Modal({ title, onClose, children, wide = false }: { title: string; onClose: () => void; children: ReactNode; wide?: boolean }) {
+  const dialogRef = useRef<HTMLElement>(null);
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
+
   useEffect(() => {
-    const handler = (event: KeyboardEvent) => { if (event.key === "Escape") onClose(); };
+    const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const focusableSelector = 'button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [href], [tabindex]:not([tabindex="-1"])';
+    const focusable = () => Array.from(dialogRef.current?.querySelectorAll<HTMLElement>(focusableSelector) ?? []).filter((element) => !element.hidden);
+    (focusable()[0] ?? dialogRef.current)?.focus();
+    const handler = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onCloseRef.current();
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const items = focusable();
+      if (items.length === 0) {
+        event.preventDefault();
+        dialogRef.current?.focus();
+        return;
+      }
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
     window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [onClose]);
-  return <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}><section className={`modal ${wide ? "wide" : ""}`} role="dialog" aria-modal="true" aria-labelledby="modal-title"><header><h2 id="modal-title">{title}</h2><button className="icon-button" onClick={onClose} aria-label="Close dialog"><X size={20} /></button></header>{children}</section></div>;
+    return () => {
+      window.removeEventListener("keydown", handler);
+      previouslyFocused?.focus();
+    };
+  }, []);
+  return <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}><section ref={dialogRef} className={`modal ${wide ? "wide" : ""}`} role="dialog" aria-modal="true" aria-labelledby="modal-title" tabIndex={-1}><header><h2 id="modal-title">{title}</h2><button className="icon-button" onClick={onClose} aria-label="Close dialog"><X size={20} /></button></header>{children}</section></div>;
 }
 
 function StatusBadge({ status }: { status: AttributeStatus }) {

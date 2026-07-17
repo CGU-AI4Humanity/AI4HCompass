@@ -261,6 +261,7 @@ input::placeholder, textarea::placeholder { color: #9b928d; }
 .mitigation-heading p, .mitigation-empty { margin: 0; color: var(--muted); font-size: 0.7rem; }
 .mitigation-row { display: grid; grid-template-columns: auto 1fr auto; align-items: start; gap: 10px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: white; padding: 10px; }
 .mitigation-row + .mitigation-row { margin-top: 8px; }
+.mitigation-error { grid-column: 2 / -1; }
 .mitigation-row.completed { opacity: 0.65; }
 .mitigation-row.completed .mitigation-fields > input { text-decoration: line-through; }
 .check-input { width: 18px; height: 18px; margin-top: 8px; accent-color: var(--green); }
@@ -269,6 +270,7 @@ input::placeholder, textarea::placeholder { color: #9b928d; }
 .mitigation-fields input { min-height: 35px; padding: 7px 9px; font-size: 0.75rem; }
 .mini-confirm { display: grid; gap: 2px; }
 .mitigation-form { display: grid; grid-template-columns: 1fr 140px 150px auto auto; align-items: center; gap: 7px; margin-top: 9px; }
+.mitigation-form-error { grid-column: 1 / -1; }
 .mitigation-form input { min-height: 36px; padding: 7px 9px; font-size: 0.73rem; }
 .destructive-row { min-height: 34px; display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 18px; color: var(--muted); font-size: 0.72rem; }
 .add-item-button { width: 100%; min-height: 78px; display: flex; align-items: center; gap: 14px; border: 1px dashed var(--line-strong); border-radius: var(--radius); background: rgba(255,255,255,0.52); padding: 15px 18px; color: var(--maroon); text-align: left; }

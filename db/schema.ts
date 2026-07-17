@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { index, integer, primaryKey, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { check, index, integer, primaryKey, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 const timestamps = {
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
@@ -44,7 +44,11 @@ export const memberships = sqliteTable("memberships", {
   userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   role: text("role", { enum: ["admin", "assessor", "viewer"] }).notNull(),
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
-}, (table) => [primaryKey({ columns: [table.orgId, table.userId] }), index("memberships_user_idx").on(table.userId)]);
+}, (table) => [
+  primaryKey({ columns: [table.orgId, table.userId] }),
+  index("memberships_user_idx").on(table.userId),
+  check("memberships_role_check", sql`${table.role} IN ('admin', 'assessor', 'viewer')`),
+]);
 
 export const invitations = sqliteTable("invitations", {
   id: text("id").primaryKey(),
@@ -56,7 +60,11 @@ export const invitations = sqliteTable("invitations", {
   acceptedAt: text("accepted_at"),
   invitedBy: text("invited_by").notNull().references(() => users.id),
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
-}, (table) => [index("invitations_email_idx").on(table.email), index("invitations_org_idx").on(table.orgId)]);
+}, (table) => [
+  index("invitations_email_idx").on(table.email),
+  index("invitations_org_idx").on(table.orgId),
+  check("invitations_role_check", sql`${table.role} IN ('admin', 'assessor', 'viewer')`),
+]);
 
 export const projects = sqliteTable("projects", {
   id: text("id").primaryKey(),
@@ -68,7 +76,10 @@ export const projects = sqliteTable("projects", {
   createdBy: text("created_by").notNull().references(() => users.id),
   updatedBy: text("updated_by").notNull().references(() => users.id),
   ...timestamps,
-}, (table) => [index("projects_org_updated_idx").on(table.orgId, table.updatedAt)]);
+}, (table) => [
+  index("projects_org_updated_idx").on(table.orgId, table.updatedAt),
+  check("projects_decision_check", sql`${table.decision} IN ('go', 'fix', 'pause', 'pending')`),
+]);
 
 export const dimensions = sqliteTable("dimensions", {
   id: text("id").primaryKey(),
@@ -79,7 +90,10 @@ export const dimensions = sqliteTable("dimensions", {
   prompt: text("prompt").notNull(),
   position: integer("position").notNull(),
   status: text("status", { enum: ["green", "yellow", "red", "pending"] }).notNull().default("pending"),
-}, (table) => [uniqueIndex("dimensions_project_code_idx").on(table.projectId, table.code)]);
+}, (table) => [
+  uniqueIndex("dimensions_project_code_idx").on(table.projectId, table.code),
+  check("dimensions_status_check", sql`${table.status} IN ('green', 'yellow', 'red', 'pending')`),
+]);
 
 export const issues = sqliteTable("issues", {
   id: text("id").primaryKey(),
@@ -91,7 +105,11 @@ export const issues = sqliteTable("issues", {
   createdBy: text("created_by").notNull().references(() => users.id),
   updatedBy: text("updated_by").notNull().references(() => users.id),
   ...timestamps,
-}, (table) => [index("issues_dimension_idx").on(table.dimensionId)]);
+}, (table) => [
+  index("issues_dimension_idx").on(table.dimensionId),
+  check("issues_score_check", sql`${table.score} BETWEEN 0 AND 100`),
+  check("issues_status_check", sql`${table.status} IN ('green', 'yellow', 'red')`),
+]);
 
 export const mitigations = sqliteTable("mitigations", {
   id: text("id").primaryKey(),

@@ -19,7 +19,8 @@ CREATE TABLE `dimensions` (
 	`prompt` text NOT NULL,
 	`position` integer NOT NULL,
 	`status` text DEFAULT 'pending' NOT NULL,
-	FOREIGN KEY (`project_id`) REFERENCES `projects`(`id`) ON UPDATE no action ON DELETE cascade
+	FOREIGN KEY (`project_id`) REFERENCES `projects`(`id`) ON UPDATE no action ON DELETE cascade,
+	CONSTRAINT "dimensions_status_check" CHECK("dimensions"."status" IN ('green', 'yellow', 'red', 'pending'))
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `dimensions_project_code_idx` ON `dimensions` (`project_id`,`code`);--> statement-breakpoint
@@ -34,7 +35,8 @@ CREATE TABLE `invitations` (
 	`invited_by` text NOT NULL,
 	`created_at` text DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	FOREIGN KEY (`org_id`) REFERENCES `organizations`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`invited_by`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action
+	FOREIGN KEY (`invited_by`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action,
+	CONSTRAINT "invitations_role_check" CHECK("invitations"."role" IN ('admin', 'assessor', 'viewer'))
 );
 --> statement-breakpoint
 CREATE INDEX `invitations_email_idx` ON `invitations` (`email`);--> statement-breakpoint
@@ -52,7 +54,9 @@ CREATE TABLE `issues` (
 	`updated_at` text DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	FOREIGN KEY (`dimension_id`) REFERENCES `dimensions`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`created_by`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action,
-	FOREIGN KEY (`updated_by`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action
+	FOREIGN KEY (`updated_by`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action,
+	CONSTRAINT "issues_score_check" CHECK("issues"."score" BETWEEN 0 AND 100),
+	CONSTRAINT "issues_status_check" CHECK("issues"."status" IN ('green', 'yellow', 'red'))
 );
 --> statement-breakpoint
 CREATE INDEX `issues_dimension_idx` ON `issues` (`dimension_id`);--> statement-breakpoint
@@ -63,7 +67,8 @@ CREATE TABLE `memberships` (
 	`created_at` text DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	PRIMARY KEY(`org_id`, `user_id`),
 	FOREIGN KEY (`org_id`) REFERENCES `organizations`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
+	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade,
+	CONSTRAINT "memberships_role_check" CHECK("memberships"."role" IN ('admin', 'assessor', 'viewer'))
 );
 --> statement-breakpoint
 CREATE INDEX `memberships_user_idx` ON `memberships` (`user_id`);--> statement-breakpoint
@@ -108,7 +113,8 @@ CREATE TABLE `projects` (
 	`updated_at` text DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	FOREIGN KEY (`org_id`) REFERENCES `organizations`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`created_by`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action,
-	FOREIGN KEY (`updated_by`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action
+	FOREIGN KEY (`updated_by`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action,
+	CONSTRAINT "projects_decision_check" CHECK("projects"."decision" IN ('go', 'fix', 'pause', 'pending'))
 );
 --> statement-breakpoint
 CREATE INDEX `projects_org_updated_idx` ON `projects` (`org_id`,`updated_at`);--> statement-breakpoint

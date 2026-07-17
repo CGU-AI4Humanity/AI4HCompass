@@ -1,4 +1,4 @@
-import { all, first, run } from "@/db";
+import { all, batch, first } from "@/db";
 import { requireUser } from "@/lib/auth";
 import { apiErrorResponse, assertSameOrigin, json } from "@/lib/http";
 import type { OrganizationSummary } from "@/shared/types";
@@ -32,8 +32,10 @@ export async function POST(request: Request) {
     if (await first("SELECT id FROM organizations WHERE slug = ?", slug)) slug = `${slug}-${crypto.randomUUID().slice(0, 6)}`;
     const id = crypto.randomUUID();
     const now = new Date().toISOString();
-    await run("INSERT INTO organizations (id, name, slug, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)", id, name, slug, user.id, now, now);
-    await run("INSERT INTO memberships (org_id, user_id, role) VALUES (?, ?, 'admin')", id, user.id);
+    await batch([
+      { sql: "INSERT INTO organizations (id, name, slug, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)", values: [id, name, slug, user.id, now, now] },
+      { sql: "INSERT INTO memberships (org_id, user_id, role) VALUES (?, ?, 'admin')", values: [id, user.id] },
+    ]);
     return json({ organization: { id, name, slug, role: "admin" } }, { status: 201 });
   } catch (error) {
     return apiErrorResponse(error);

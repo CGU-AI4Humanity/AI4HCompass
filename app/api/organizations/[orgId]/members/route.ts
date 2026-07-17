@@ -48,6 +48,7 @@ export async function POST(request: Request, context: Context) {
     const organization = await first<{ name: string }>("SELECT name FROM organizations WHERE id = ?", orgId);
     if (!organization) throw new ApiError(404, "Organization not found.");
     const existingUser = await first<{ id: string }>("SELECT id FROM users WHERE email = ?", email);
+    await sendOrganizationInvitation(email, organization.name);
     if (existingUser) {
       await run(
         "INSERT INTO memberships (org_id, user_id, role) VALUES (?, ?, ?) ON CONFLICT(org_id, user_id) DO UPDATE SET role = excluded.role",
@@ -68,8 +69,7 @@ export async function POST(request: Request, context: Context) {
         user.id,
       );
     }
-    await sendOrganizationInvitation(email, organization.name);
-    return json({ success: true }, { status: 201 });
+    return json({ success: true, status: existingUser ? "active" : "invited" }, { status: 201 });
   } catch (error) {
     return apiErrorResponse(error);
   }
@@ -99,7 +99,11 @@ export async function DELETE(request: Request, context: Context) {
     await requireOrgRole(user.id, orgId, "admin");
     const { userId } = removeSchema.parse(await request.json());
     await guardLastAdmin(orgId, userId);
-    await run("DELETE FROM memberships WHERE org_id = ? AND user_id = ?", orgId, userId);
+    const membership = await run("DELETE FROM memberships WHERE org_id = ? AND user_id = ?", orgId, userId);
+    if (!membership.meta.changes) {
+      const invitation = await run("DELETE FROM invitations WHERE org_id = ? AND id = ? AND accepted_at IS NULL", orgId, userId);
+      if (!invitation.meta.changes) throw new ApiError(404, "Member or invitation not found.");
+    }
     return json({ success: true });
   } catch (error) {
     return apiErrorResponse(error);
